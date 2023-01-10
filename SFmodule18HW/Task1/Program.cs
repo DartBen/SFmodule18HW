@@ -1,30 +1,31 @@
-﻿using YoutubeExplode;
-using YoutubeExplode.Converter;
-using YoutubeExplode.Videos;
-
+﻿using Task1;
+using YoutubeExplode;
 
 internal class Program
 {
     private static async Task Main(string[] args)
     {
-        Console.WriteLine("Hello, World!");
 
-        var youtube = new YoutubeClient();
+        //Попытка использования синглтона для хранения конфигурации
+        AppSettings settings = AppSettings.getInstance();
+        settings.URL = "https://youtube.com/shorts/ll4veEpQ-NU?feature=share";
+        settings.Path = "";
 
-        string url = "https://youtube.com/watch?v=u_yIGGhubZs";
-        string path = "C:\\Users\\Dima\\Desktop\\Repos\\SF Module 18 HW\\SFmodule18HW\\Task1\\bin\\Debug\\net7.0";
+        //паттерн Команда
+        //инициатор команды
+        Invoker invoker = new Invoker();
+        //получатель команды
+        YoutubeClient youtubeClient = new YoutubeClient();
 
+        //Команда 1- получение информации о видео
+        GetTitleCommand command = new GetTitleCommand(youtubeClient, settings);
+        invoker.SetCommand(command);
+        await invoker.Run();
 
-        // You can specify either video ID or URL
-        var video = await youtube.Videos.GetAsync(url);
-
-        var title = video.Title; // "Collections - Blender 2.80 Fundamentals"
-        var author = video.Author.ChannelTitle; // "Blender"
-        var duration = video.Duration; // 00:07:20
-
-        youtube.Videos.DownloadAsync(url, path);
-
-        Console.WriteLine(title);
+        //Команда 2- загрузка видео
+        // бывает подвисает. почему не до конца понимаю
+        GetVideoCommand command2 = new GetVideoCommand(youtubeClient, settings);
+        invoker.SetCommand(command2);
+        await invoker.Run();
     }
 }
-
